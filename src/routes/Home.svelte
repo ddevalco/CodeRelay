@@ -1,7 +1,7 @@
 <script lang="ts">
   import { socket } from "../lib/socket.svelte";
   import { threads } from "../lib/threads.svelte";
-  import type { ThreadInfo, ThreadFilterState } from "../lib/types";
+  import type { ProviderFilter, ThreadInfo, ThreadFilterState } from "../lib/types";
   import { messages } from "../lib/messages.svelte";
   import { navigate } from "../router";
   import { models } from "../lib/models.svelte";
@@ -101,7 +101,7 @@
     },
   } as const;
 
-  const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
+  const PROVIDER_DISPLAY_NAMES: Record<Exclude<ProviderFilter, "all">, string> = {
     "codex": "Codex",
     "copilot-acp": "Copilot",
     "claude": "Claude",
