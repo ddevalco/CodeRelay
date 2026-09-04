@@ -10,21 +10,21 @@ CodeRelay uses a **provider adapter pattern** to support multiple AI backends. E
 
 - **Codex** (via Anchor): Full read/write support, all capabilities enabled
 - **OpenCode**: REST API integration with local OpenCode server
-- **GitHub Copilot+**: Full integration with send, streaming, approvals, and attachments
+- **GitHub Copilot (ACP)**: Full integration with send, streaming, approvals, and attachments
 - **Claude (Web API)**: Direct Anthropic Claude API integration
 - **Claude (MCP)**: Local Claude CLI via MCP
 
 ## Provider Capability Matrix
 
-| Capability | Codex | OpenCode | Copilot+ | Claude |
-|------------|-------|----------|-----------|--------|
-| `CAN_ATTACH_FILES` | ✅ | ✅ | ✅ | ❌ |
-| `CAN_FILTER_HISTORY` | ✅ | ✅ | ❌ | ✅ |
-| `SUPPORTS_APPROVALS` | ✅ | ✅ | ✅ (dynamic) | ❌ |
-| `SUPPORTS_STREAMING` | ✅ | ✅ | ✅ | ✅ |
+| Capability | Codex | OpenCode | Copilot ACP | Claude Web | Claude MCP |
+|------------|-------|----------|-------------|------------|------------|
+| `CAN_ATTACH_FILES` | ✅ | ❌ | ✅ | ✅ | ❌ |
+| `CAN_FILTER_HISTORY` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `SUPPORTS_APPROVALS` | ✅ | ❌ | ✅ (dynamic) | ❌ | ❌ |
+| `SUPPORTS_STREAMING` | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 **Notes:** 
-- Copilot+ `SUPPORTS_APPROVALS` is `false` when started with `--allow-all-tools` flag (tools are auto-approved at provider level).
+- Copilot ACP `SUPPORTS_APPROVALS` is `false` when started with `--allow-all-tools` (tools are auto-approved at provider level).
 - OpenCode capabilities depend on the OpenCode server version and model used.
 
 ## Quick Start

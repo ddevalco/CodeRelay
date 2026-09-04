@@ -1365,17 +1365,15 @@ class MessagesStore {
 
           case "fileChange": {
             const changes = item.changes as Array<{ path: string; diff?: string }>;
+            const text = changes?.map((c) => `${c.path}\n${c.diff || ""}`).join("\n\n") || "";
+            const { linesAdded, linesRemoved } = countDiffLines(text);
             messages.push({
               id,
               role: "tool",
               kind: "file",
-              text: changes?.map((c) => `${c.path}\n${c.diff || ""}`).join("\n\n") || "",
+              text,
               threadId,
-              metadata: (() => {
-                const t = changes?.map((c) => `${c.path}\n${c.diff || ""}`).join("\n\n") || "";
-                const { linesAdded, linesRemoved } = countDiffLines(t);
-                return { linesAdded, linesRemoved };
-              })(),
+              metadata: { linesAdded, linesRemoved },
             });
             break;
           }

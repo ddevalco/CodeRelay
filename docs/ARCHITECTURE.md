@@ -44,7 +44,7 @@ Responsibilities:
 
 ## Provider Abstraction Layer
 
-CodeRelay supports multiple AI provider backends through a unified adapter interface. This enables viewing and interacting with sessions from different providers (Codex, OpenCode, GitHub Copilot+, Claude, etc.) in one UI.
+CodeRelay supports multiple AI provider backends through a unified adapter interface. This enables viewing and interacting with sessions from Codex, OpenCode, GitHub Copilot (ACP), and Claude adapters in one UI.
 
 ### Architecture
 
@@ -63,17 +63,16 @@ CodeRelay supports multiple AI provider backends through a unified adapter inter
 │  │   - Adapter lookup                            │  │
 │  └───┬───────────────────────────────────────┬───┘  │
 │      │                                       │      │
-|  ┌───▼──────────┐ ┌──────────▼───────┐ ┌──────▼────────┐ ┌──────▼────────┐ |
-|  │CodexAdapter │ │ OpenCodeAdapter   │ │CopilotACP     │ │ClaudeAdapter  │ |
-|  │(via Anchor) │ │ (REST API)        │ │Adapter        │ │(REST API)     │ |
-|  └───┬──────────┘ └───────────────────┘ └───────┬────┘ └───────────────┘ |
-│      │                                       │      │
-└──────┼───────────────────────────────────────┼──────┘
-       │                                       │
-   ┌───▼────┐                          ┌──────▼─────┐
-   │ anchor │                          │ gh copilot │
-   │(Codex) │                          │   --acp    │
-   └────────┘                          └────────────┘
+│  ┌───▼──────────┐ ┌──────────▼───────┐ ┌──────▼────────┐ ┌──────▼────────┐ │
+│  │ CodexAdapter │ │ OpenCodeAdapter  │ │ CopilotACP    │ │ ClaudeAdapter │ │
+│  │ (via Anchor) │ │ (REST API)       │ │ Adapter       │ │ (REST/MCP)    │ │
+│  └───┬──────────┘ └──────────┬───────┘ └───────┬───────┘ └────────┬───────┘ │
+└──────┼───────────────────────┼─────────────────┼──────────────────┼─────────┘
+       │                       │                 │                  │
+   ┌───▼────┐          ┌───────▼──────┐   ┌──────▼─────┐    ┌──────▼─────┐
+   │ anchor │          │ opencode     │   │ gh copilot │    │ Anthropic/ │
+   │(Codex) │          │ serve        │   │   --acp    │    │ Claude CLI │
+   └────────┘          └──────────────┘   └────────────┘    └────────────┘
 ```
 
 ### ProviderAdapter Contract
@@ -117,7 +116,7 @@ interface NormalizedSession {
 1. **Startup**: `ProviderRegistry.startAll()` called during server initialization
 2. **Shutdown**: `ProviderRegistry.stopAll()` called on SIGTERM/SIGINT
 3. **Thread List**: `augmentThreadList()` fetches sessions from all providers and merges
-4. **Read-Only Enforcement**: `isAcpWriteOperation()` blocks writes to non-Codex providers in Phase 1
+4. **ACP Write Constraints**: `isAcpWriteOperation()` restricts unsupported writes on `copilot-acp:` threads; OpenCode and Claude prompts use generic provider routing
 5. **Health Checks**: `/admin/health` endpoint aggregates provider health
 
 ### Provider Adapters
@@ -134,7 +133,7 @@ CodeRelay implements five provider adapters:
 
 - **Connection**: REST API to local OpenCode server (default: `http://127.0.0.1:4096`)
 - **Communication**: HTTP REST
-- **Full Capabilities**: Send prompts, stream responses, attachments support
+- **Current Capabilities**: Send prompts and stream responses; attachments are not supported
 
 #### CopilotAcpAdapter
 
